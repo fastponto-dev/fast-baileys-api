@@ -66,7 +66,11 @@ const createSession = async (sessionId, isLegacy = false, res = null) => {
         auth: state,
         printQRInTerminal: true,
         logger,
+<<<<<<< HEAD
         browser: Browsers.appropriate('Chrome'),
+=======
+        browser: ["FASTZAP", "Chrome", "1.0"],
+>>>>>>> fd7de5e549dbf81536e6cf05365b976e816a6cf5
     }
 
     /**
