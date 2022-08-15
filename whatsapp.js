@@ -10,9 +10,11 @@ import makeWASocket, {
     DisconnectReason,
     delay,
 } from '@adiwajshing/baileys'
+import axios from 'axios';
 import { toDataURL } from 'qrcode'
 import __dirname from './dirname.js'
 import response from './response.js'
+import downloadMessage from './helper/downloadMessage.js';
 
 const sessions = new Map()
 const retries = new Map()
@@ -85,24 +87,60 @@ const createSession = async (sessionId, isLegacy = false, res = null) => {
         if (isLegacy) {
             store.chats.insertIfAbsent(...chats)
         }
-    })
+    });
 
-    // Automatically read incoming messages, uncomment below codes to enable this behaviour
-    /*
-    wa.ev.on('messages.upsert', async (m) => {
-        const message = m.messages[0]
+    wa.ev.on('messages.upsert', (m) => {
 
-        if (!message.key.fromMe && m.type === 'notify') {
-            await delay(1000)
+        if (m.type !== 'notify') return
 
-            if (isLegacy) {
-                await wa.chatRead(message.key, 1)
-            } else {
-                await wa.sendReadReceipt(message.key.remoteJid, message.key.participant, [message.key.id])
+        m.messages.map(async (msg) => {
+            if (!msg.message) return
+
+            const messageType = Object.keys(msg.message)[0]
+            if (
+                [
+                    'protocolMessage',
+                    'senderKeyDistributionMessage',
+                ].includes(messageType)
+            )
+                return
+
+            const webhookData = {
+                instance: sessionId,
+                ...msg,
             }
-        }
-    })
-    */
+
+            if (messageType === 'conversation') {
+                webhookData['text'] = m
+            }
+
+            switch (messageType) {
+                case 'imageMessage':
+                    webhookData['msgContent'] = await downloadMessage(
+                        msg.message.imageMessage,
+                        'image'
+                    )
+                    break
+                case 'videoMessage':
+                    webhookData['msgContent'] = await downloadMessage(
+                        msg.message.videoMessage,
+                        'video'
+                    )
+                    break
+                case 'audioMessage':
+                    webhookData['msgContent'] = await downloadMessage(
+                        msg.message.audioMessage,
+                        'audio'
+                    )
+                    break
+                default:
+                    webhookData['msgContent'] = ''
+                    break
+            }
+
+            await sendWebhook(webhookData);
+        })
+    });
 
     wa.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update
@@ -149,7 +187,19 @@ const createSession = async (sessionId, isLegacy = false, res = null) => {
                 deleteSession(sessionId, isLegacy)
             }
         }
-    })
+    });
+}
+
+const sendWebhook = (data) => {
+    let tries = 3;
+
+    axios.post(process.env.WEB_HOOK_URL, data)
+    .catch(async function (error) {
+        if(tries > 0){
+            await sendWebhook(data);
+            tries = tries - 1;
+        }
+    });
 }
 
 /**
