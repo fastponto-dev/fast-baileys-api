@@ -197,7 +197,7 @@ const createSession = async (sessionId, isLegacy = false, res = null) => {
 const sendWebhook = (data) => {
     let tries = 3;
 
-    axios.post(process.env.WEB_HOOK_URL, data)
+    axios.post(process.env.WEBHOOK_URL, data)
     .catch(async function (error) {
         if(tries > 0){
             await sendWebhook(data);
