@@ -17,11 +17,16 @@ const send = async (req, res) => {
             return response(res, 400, false, 'The receiver number is not exists.')
         }
 
-        await sendMessage(session, receiver, message, 0)
+        const delay = (Math.floor(Math.random() * 4) + 1) * 1000;
+        const responseMessage = await sendMessage(session, receiver, message, delay);
 
-        response(res, 200, true, 'The message has been successfully sent.')
-    } catch {
-        response(res, 500, false, 'Failed to send the message.')
+        response(res, 200, true, 'Mensagem enviada com sucesso', {
+            messageId: responseMessage.key.id
+        })
+    } catch(e) {
+        response(res, 500, false, 'Não foi possível enviar a mensagem', {
+            error: e
+        })
     }
 }
 
