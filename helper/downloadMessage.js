@@ -1,4 +1,4 @@
-import { downloadContentFromMessage } from '@adiwajshing/baileys';
+import { downloadContentFromMessage } from '@whiskeysockets/baileys';
 
 export default async function downloadMessage(msg, msgType) {
     let buffer = Buffer.from([])
