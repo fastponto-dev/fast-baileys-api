@@ -10,7 +10,14 @@ const app = express()
 const host = process.env.HOST || undefined
 const port = parseInt(process.env.PORT ?? 8000)
 
-app.use(cors())
+const allowedOrigins = ['http://fast-whatsapp.test'];
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(cors({
+    origin: allowedOrigins
+  }));
+}
+
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use('/', routes)

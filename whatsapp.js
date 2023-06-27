@@ -1,12 +1,12 @@
-import { rmSync, readdir } from 'fs'
-import { join } from 'path'
-import pino from 'pino'
+import { rmSync, readdir } from 'fs';
+import { join } from 'path';
+import pino from 'pino';
 import makeWASocket, {
     useMultiFileAuthState,
     makeInMemoryStore,
     DisconnectReason,
     delay,
-} from '@whiskeysockets/baileys'
+} from '@whiskeysockets/baileys';
 import axios from 'axios';
 import { toDataURL } from 'qrcode'
 import __dirname from './dirname.js'

@@ -6,15 +6,11 @@ const find = (req, res) => {
 }
 
 const status = (req, res) => {
-    const states = ['connecting', 'connected', 'disconnecting', 'disconnected']
-
     const session = getSession(res.locals.sessionId)
-    let state = states[session.ws.readyState]
 
-    state =
-        state === 'connected' && typeof (session.isLegacy ? session.state.legacy.user : session.user) !== 'undefined'
-            ? 'authenticated'
-            : state
+    const state = session?.user !== undefined
+        ? 'authenticated'
+        : 'unauthenticated'
 
     response(res, 200, true, '', { status: state })
 }
