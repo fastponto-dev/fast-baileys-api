@@ -8,7 +8,7 @@ const getList = (req, res) => {
 const send = async (req, res) => {
     const session = getSession(res.locals.sessionId)
     const receiver = formatPhone(req.body.receiver)
-    const { message } = req.body
+    const { message, messageId } = req.body
 
     try {
         const exists = await isExists(session, receiver)
@@ -17,8 +17,8 @@ const send = async (req, res) => {
             return response(res, 400, false, 'The receiver number is not exists.')
         }
 
-        const delay = (Math.floor(Math.random() * 4) + 1) * 1000;
-        const responseMessage = await sendMessage(session, receiver, message, delay);
+        const responseMessage = await sendMessage(session, receiver, message, (messageId === null) ? undefined : messageId);
+        console.log(responseMessage);
 
         response(res, 200, true, 'Mensagem enviada com sucesso', {
             messageId: responseMessage.key.id

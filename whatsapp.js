@@ -59,7 +59,7 @@ const createSession = async (sessionId, res = null) => {
         auth: state,
         printQRInTerminal: true,
         logger,
-        browser: ["FASTZAP", "Chrome", "1.0"],
+        browser: ["FASTZAP", "Chrome", "1.0"]
     }
 
     const wa = makeWASocket.default({
@@ -238,11 +238,13 @@ const isExists = async (session, jid, isGroup = false) => {
 /**
  * @param {import('@whiskeysockets/baileys').AnyWASocket} session
  */
-const sendMessage = async (session, receiver, message, delayMs = 1000) => {
+const sendMessage = async (session, receiver, message, messageId = undefined) => {
     try {
+        
+        const delayMs = (Math.floor(Math.random() * 4) + 1) * 1000;
         await delay(parseInt(delayMs));
 
-        return session.sendMessage(receiver, message)
+        return session.sendMessage(receiver, message);
     } catch {
         return Promise.reject(null) // eslint-disable-line prefer-promise-reject-errors
     }
